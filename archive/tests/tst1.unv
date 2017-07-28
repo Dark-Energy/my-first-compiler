@@ -1,0 +1,75 @@
+//тест на рекурсию
+//расчет факториала
+
+defun factorial(integer f):integer;
+integer r;
+begin 
+  if f == 1 | f == 0 then return 1; end;
+  r = 1;
+  while f > 0 do 
+    r = r*f; DEC(f);
+  end;
+  return r;
+end; 
+
+defun razm(integer m, n): integer;
+integer r;
+begin
+  if n == 0 | n == 1 | m == 0 then return 1; 
+  elsif m == 1 then return n;  end;
+  r = 1;
+  while m > 0 do 
+    r= r * n; DEC(n); DEC(m);
+  end;
+  return r;
+end;
+
+defun comb(integer m, n):integer;
+begin
+  if m == n then return 1; end;
+  return razm(m, n) / factorial(m);
+end;
+
+defun PrintFactorials(integer count);
+integer i;
+begin
+  i=1;  
+  while i < count do  write(factorial(i)); INC(i); end;
+  writeln(count);
+end;
+
+defun PrintRazm(integer n);
+integer i, j;
+begin
+  i=0;  
+  while i <= n do 
+    j=0;    
+    while  j <= i do 
+      write(razm(j, i)); 
+      INC(j);
+    end;
+    writeln(i);
+    INC(i);
+  end;  
+end;
+
+defun PrintComb(integer n);
+integer i, j;
+begin
+  i=0;  
+  while i <= n do 
+    j=0;    
+    while  j <= i do 
+      write(comb(j, i)); 
+      INC(j);
+    end;
+    writeln(i);
+    INC(i);
+  end;  
+end;
+
+begin 
+  PrintFactorials(7);
+  PrintRazm(5);
+  PrintComb(5);
+end.

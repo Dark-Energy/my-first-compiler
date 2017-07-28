@@ -1,0 +1,13 @@
+integer i; 
+defun factorial(integer f):integer;
+integer r;
+begin 
+  if f == 1 then return 1; end;
+  if f == 2 then return 2; end;
+  r= r*factorial(f-1);
+  return r;
+end; 
+
+begin 
+  i=factorial(5); 
+end.

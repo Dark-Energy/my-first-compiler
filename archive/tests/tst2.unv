@@ -1,0 +1,18 @@
+integer i; 
+
+defun factorial(integer f):integer;
+begin 
+  if f == 1 then return 1; end;
+  if f == 2 then return 2; end;
+  return f*factorial(f-1);
+end; 
+
+integer j;
+begin 
+  i=1; j=0;
+  while i < 4 do 
+    j=j+factorial(i));  
+    inc(1); 
+  end;
+  writeln(j);
+end.

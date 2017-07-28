@@ -1,0 +1,22 @@
+–аспределение регистров
+        ќдин из операндов должен быть на стеке. ¬торой может быть в пам€ти.
+–езультат всегда остаетс€ на вершине стека. ≈сть возможность переслать
+вершину стека в пам€ть и значение из пам€ти на вершину стека.
+
+        
+        if isSimple(right) then begin
+                
+        end
+        else if isSimple(left) then begin
+        end
+        else begin
+        end;  
+
+
+        
+
+        if (left.tip.form in RealSet) or (right.tip.form in RealSet) then
+                RealCompare;
+
+
+        

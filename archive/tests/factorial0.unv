@@ -1,0 +1,20 @@
+//тест на рекурсию
+//расчет факториала
+
+integer i; 
+
+defun factorial(integer f):integer;
+begin 
+  if f == 1 then return 1; end;
+  if f == 2 then return 2; end;
+  return f*factorial(f-1);
+end; 
+
+integer j;
+begin 
+  i=1; j=0;
+  while i < 7 do 
+    writeln(factorial(i));  
+    INC(i); 
+  end;
+end.

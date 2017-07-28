@@ -1,0 +1,343 @@
+unit pe;
+interface
+uses SysUtils, Windows;
+procedure GenFile(name: string);
+
+var
+  Buffer: array[0..4096] of char;
+
+implementation
+
+{$i mz.inc}
+
+type
+  //новый заголовок PE 
+  SectAddr = record
+    //0-экспорт (proba:$10000,$CA)
+    //1-импорт  (proba:$F000,$4C4)
+     virtualAddress: integer;
+     vsize: integer;
+   end;
+
+  TPEHeader = record
+    Signature: array[0..3] of char;
+    CPUType: word;
+    SectionCount: word;
+    TimeDateStamp: integer;
+    CoffTablePtr: integer;
+    CoffTableSize: integer;
+    SizeOptionalHeader: word;
+    flags: word; //флаги 
+    (*
+        0 - это программа
+        1 - файл не содержит перемещений и таблицы перемещаемых элементов
+        2 - образ в файле можно запускать
+        200H - грузить фиксированно
+        2000h - библиотека
+    *)
+    magic: word; //010B
+    linkerVersion: word; //версия линкера : 1902
+    CodeSize: integer;  //размер кода: округлено вверх до 1000
+    InitDataSize: integer; // размер инициированных данных (вверх)
+    UnInitDataSize: integer; // размер неинициированных данных: 0
+    EntryPoint: integer; //1000 + смещение точки входа
+    BaseOfCode: integer; //1000 (RVA секции .text)
+    BaseOfData: integer; //1000H (RVA секции .data)
+    imageBase: integer; //$400000  виртуальный начальный адрес загрузки
+     sectionAlign : integer; //$1000
+    fileAlign: integer; //$200
+    osVersion: integer; //1 версия ОСи
+    imageVersion: integer; //0
+    subsystVersion: integer; //$000A0003 версия подсистемы
+    reserved1: integer; //0 не исп.
+    sizeofImage: integer; //RVA последней секции+ее размер-RVA первой секции
+    sizeofHeaders: integer; //размер заголовка и таблицы секций (в proba - $400)
+    checkSum: integer; //0 контрольная сумма (на фиг)
+    subSystem: word;    //3 - консаоль, 2- ГУИ; подсистема
+    dllFlags: word;    //0
+    stackReserve: integer; //$100000 макс размер стека
+    stackCommit: integer; //$2000 мин размер стека
+    heapReserve: integer; //$100000 макс размер кучи
+    heapCommit: integer; //$1000 мин размер кучи
+    loaderFlags: integer; //0 
+    numRvaAndSizes:integer; //16
+    dirs : array [0..15] of SectAddr
+  end;
+
+var
+  PEHeader : TPEHeader;
+
+(* таблица секций *)
+type
+  TSectionType = (exeNULL, exeDos, exeHeader, exeSect, exeData,
+    exeIData, exeEData, exeText, exeRsrc, exeDebug);
+
+  TSection = record
+    name:array[0..7]of char; //имя секции
+    //размер секции в памяти (точное значение)
+    virtualSize:integer;
+    //RVA секции ($1000 для .text и т.д.)
+    SectionRVA: integer;
+   //физический размер секции в секции (выравнено на $200)
+    PhysicalSize:integer; 
+   //физическое смещение от начала файла 
+    PhysicalOffset: integer; 
+    pointerReloc:integer; //0
+    pointerLineNum:integer; //0
+    numReloc:word; //0
+    numLineNum:word; //0
+    flags:integer; //данные
+        //.text :$60000020
+        //.data :$C0000040
+        //.idata:$40000040
+        //.edata:$40000040
+        //.rsrc :$40000040
+        //.debug :$40000040
+  end;
+
+var
+  Sections: array [1..3] of TSection;
+  MakeDLL: boolean = false;
+  CodeSize:integer =  11;
+  BASECODE: integer = $400000;
+  STACKMAX : integer = $100000;
+  STACKMIN : integer = $2000;
+  HEAPMAX : integer =  $100000;
+  HEAPMIN : integer = $1000;
+  SizeOfImportData: integer=0; 
+  Code : array[0..256] of byte;
+  Data: string = 'Это тест';
+
+type
+  ImportDescriptor = record
+    origFirstThunk:integer; //0
+    timeDateStump:integer; //0
+    forwardChain:integer; //0
+    name:integer; //RVA сроки-имени файла DLL
+    FirstThunk:integer; //RVA массива указателей на имп.функции
+  end;
+  //массив Thunk состоит из RVA указателей (zeroend)
+  //каждый указывает на 0,0,имя функции zeroend
+  //элементы из массива Thunk (их RVA-адреса
+  //должны фигурировать в вызовах CALL PTR[]
+  
+
+function genAlign(siz, align:integer):integer;
+begin
+  if align=0 then result:= siz
+  else if siz mod align = 0 then result:= siz
+  else result:= siz - siz mod align + align
+end;
+
+procedure WriteAlign(Handle, align:integer);
+const
+  b:byte = 0;
+var
+  hw: word;
+begin
+  while (align <> 0) and
+  (Windows.GetFileSize(Handle, @hw) mod align <> 0) do
+    FileWrite(Handle, b, 1);
+end;
+
+
+procedure InitPEHeader;
+var
+  i:integer;
+begin  
+  i:= CodeSize;
+  with PEHeader do begin
+    //сигнатура
+    Signature[0]:= 'P'; Signature[1]:= 'E'; Signature[2]:= #0; Signature[3]:= #0;
+    CPUType:= $14C;     //тип ЦПУ
+    SectionCount:= 2; // колво секций
+    TimeDateStamp:= $073924CA; //дата и время
+    CoffTablePtr:= 0; CoffTableSize:= 0;
+    SizeOptionalHeader:= $E0;
+    flags:= $010E;
+
+    magic:= $010B;
+    linkerVersion:= 3;
+    UnInitDataSize:= 0; // размер неинициализированных данных
+    InitDataSize:= 0;// размер инициализированных данных
+
+    CodeSize:= genAlign(i, $1000);// размер кода
+
+    BaseOfCode := $1000 + GenAlign(SizeOfImportData, $1000); //база кода
+    writeln('Base of Code', BaseofCode);
+    entryPoint := BaseOfCode; //точка входа
+    baseOfData:=  0; //база данных
+    BASECODE:= $400000;
+    imageBase:= BASECODE; //базовый виртуальный адрес 
+
+    SectionAlign:= $1000; //выравнивание в памяти
+    FileAlign:= $200; //выравнивание в файле
+    OsVersion:= 4; ImageVersion:= 0; reserved1:= 0;
+
+    sizeOfImage := $1000 + GenAlign(SizeOfImportData, $100) + 
+      GenAlign(i, $1000); //размер образа
+    sizeofHeaders:= genAlign(sizeof(DOSHeader) + sizeof(TPEHeader) +
+      sizeof(TSection)*3, $200); //размер всех заголовков
+
+    checkSum:= 0; //контрольная сумма
+    subSystem:= 2; //GUI номер подсистемы : консоль, ГУИ и пр.
+    dllFlags:= 0; //не исп.
+    //размер стека
+    stackReserve:= STACKMAX;
+    stackCommit:= STACKMIN;
+     //размер кучи
+    heapReserve:= HEAPMAX;  heapCommit:= HEAPMIN;
+    loaderFlags:=0;
+    //массив чего-то
+    numRvaAndSizes:=16;
+    for i:=0 to 15 do
+      with dirs[i] do
+        if i = 1 then begin  //импорт
+          virtualAddress:= $1000;
+          vsize:= GenAlign(SizeOfImportData, $1000);
+        end
+        else begin virtualAddress:=0;  vsize:=0; end;
+  end;
+end;
+
+
+const
+  DLLName :string = 'kernel32.dll';
+  FuncName :string = 'ExitProcess';
+
+procedure GenExeFile(Handle: THandle);
+var
+  s: string;
+  b: byte;
+  imp1, imp2: ImportDescriptor;
+  i:integer;
+  funcRVA: longint;
+  k:integer; 
+  CurAddr: longint;
+begin
+
+  CodeSize:= CodeSize + 5;
+
+  SizeOfImportData := 
+    Length(DllName)+1 + Length(FuncName)+1 + 2 + 4 + 4 +
+      sizeof(ImportDescriptor)*2;
+
+  CurAddr:=0;
+  //старый и новый заголовки
+  InitPEHeader; //заголовок PE
+  FileWrite(Handle, DOSHeader, sizeof(DOSHeader));
+  inc(CurAddr, sizeof(DOSheader));  
+  FileWrite(Handle, PEHeader, sizeof(PEHeader));
+  inc(CurAddr, sizeof(PEHeader)); 
+
+
+//таблица секций
+  with Sections[1] do begin//импорт
+    lstrcpy(addr(name),'.idata'); name[7]:=char(0);
+    SectionRVA:= $1000;//смещение в памяти
+    VirtualSize:= GenAlign(SizeOfImportData, $1000); //размер в памяти
+    PhysicalOffset := genAlign(sizeof(DOSHeader)+
+      Sizeof(PEHeader)+sizeof(Sections), $200);
+    PhysicalSize:= GenAlign(SizeOfImportData, $200);
+    flags:= $40000040;
+  end;
+  with Sections[2] do begin //код
+    lstrcpy(addr(name),'.text'); name[6]:=char(0); name[7]:=char(0);
+    SectionRVA := Sections[1].SectionRVA + Sections[1].VirtualSize;
+    VirtualSize:= GenAlign(CodeSize, $1000);
+    PhysicalOffset:= Sections[1].PhysicalOffset+Sections[1].PhysicalSize;
+    PhysicalSize:= GenAlign(CodeSize, $200);
+     flags:= $60000020;
+   end;
+   ZeroMemory(@Sections[3], sizeof(TSection));
+   FileWrite(Handle, Sections[1], sizeof(Sections));
+   WriteAlign(Handle, $200);
+   inc(CurAddr, sizeof(SEctions));
+   CurAddr:= GenAlign(CurAddr, $200);  
+   
+//секция импорта (массив ImportDesctriptor)
+ k:= Sections[1].SectionRVA + sizeof(ImportDescriptor)*2;
+ with imp1 do begin
+   origFirstThunk:=0;
+   timeDateStump:=0;
+   forwardChain:=0;
+   name:= k;
+   FirstThunk:= k+length(DLLName)+1;
+   FileWrite(Handle, imp1, sizeof(ImportDescriptor));
+  end;
+  with imp2 do begin
+    origFirstThunk:=0;
+    timeDateStump:=0;
+    forwardChain:=0;
+    name:=0;
+    FirstThunk:=0;
+    FileWrite(Handle, imp2, sizeof(ImportDescriptor));
+  end;
+  inc(CurAddr, sizeof(ImportDescriptor)*2);
+
+//секция импорта (массив имен модулей)
+    FileWrite(Handle, DLLName[1], Length(DLLName));
+    b:=0; FileWrite(handle, b, 1);
+    inc(CurAddr, length(DLLName)+1);
+
+    //секция импорта (наборы имен функций)
+    //массив указателей
+    //смещение секции + размер 2 дескрипторов + длина имени DLL +1
+    i:= k + length(DLLName) + 1;
+    funcRVA:= i;
+    i:= k + Length(DLLname)+1+8;
+    FileWrite(handle, i, 4);
+    i:= 0; FileWrite(handle, i, 4);
+    inc(CurAddr, 4); inc(CurAddr, 4);
+
+//массив имен функций
+    FileWrite(handle, i, 2); inc(CurAddr, 2);
+    FileWrite(handle, FuncName[1], length(FuncName));
+    FileWrite(handle, b, 1);
+    inc(CurAddr, length(FuncName)+1);
+    WriteAlign(Handle, $200);
+    CurAddr:= GenAlign(CurAddr, $200);
+
+//секция кода
+        FuncRva:= BASECODE + funcRVA;   
+          k:= 0;
+
+          code[k]:= $68; inc(k);
+          Code[k]:= 1;inc(k);
+          Code[k]:= 0;inc(k);
+          Code[k]:= 0;inc(k);
+          Code[k]:= 0;inc(k);
+
+          code[k]:= $68; inc(k);
+          Code[k]:= 0;inc(k);
+          Code[k]:= 0;inc(k);
+          Code[k]:= 0;inc(k);
+          Code[k]:= 0;inc(k);
+
+          code[k]:= $FF; inc(k);
+          code[k]:= $15; inc(k);
+          writeln(funcrva);
+          code[k]:=lobyte(loword(funcrva)); inc(k);
+          code[k]:=hibyte(loword(funcrva)); inc(k);
+          code[k]:=lobyte(hiword(funcrva));  inc(k);
+          code[k]:=hibyte(hiword(funcrva)); inc(k);
+          FileWrite(Handle, Code[0], k);
+  WriteAlign(Handle, $200);
+
+end;
+
+procedure GenFile(name: string);
+var
+  handle: THandle;
+begin
+  ZeroMemory(@Buffer[0], sizeof(Buffer));
+  handle:= FileCreate(name);
+  if handle = 0 then exit;
+  try  
+   GenExeFile(handle);
+  finally
+    CloseHandle(handle);
+  end;
+end;
+
+end.

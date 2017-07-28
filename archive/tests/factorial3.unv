@@ -1,0 +1,9 @@
+integer i; 
+defun func(integer f):integer;
+begin    
+  if f == 1 then return 1 else return f * func(f-1); end;
+end; 
+
+begin 
+  func(5); 
+end.

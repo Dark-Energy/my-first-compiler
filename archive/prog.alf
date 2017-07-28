@@ -1,0 +1,323 @@
+Disassembly of File: prog.exe
+Code Offset = 00000A00, Code Size = 00000200
+Data Offset = 00000400, Data Size = 00000400
+
+Number of Objects = 0003 (dec), Imagebase = 00400000h
+
+   Object01: .data    RVA: 00001000 Offset: 00000400 Size: 00000400 Flags: C0000040
+   Object02: .idata   RVA: 00002000 Offset: 00000800 Size: 00000200 Flags: 40000040
+   Object03: .text    RVA: 00003000 Offset: 00000A00 Size: 00000200 Flags: 60000020
+
+
++++++++++++++++++++ MENU INFORMATION ++++++++++++++++++
+
+        There Are No Menu Resources in This Application
+
++++++++++++++++++ DIALOG INFORMATION ++++++++++++++++++
+
+        There Are No Dialog Resources in This Application
+
++++++++++++++++++++ IMPORTED FUNCTIONS ++++++++++++++++++
+Number of Imported Modules =    2 (decimal)
+
+   Import Module 001: kernel32.dll
+   Import Module 002: art.dll
+
++++++++++++++++++++ IMPORT MODULE DETAILS +++++++++++++++
+
+   Import Module 001: kernel32.dll
+
+ Addr:00002059 hint(0000) Name: ExitProcess
+
+   Import Module 002: art.dll
+
+ Addr:0000207B hint(0000) Name: writeln
+ Addr:00002085 hint(0000) Name: write
+ Addr:0000208D hint(0000) Name: ShowMessage
+ Addr:0000209B hint(0000) Name: ModalConsole
+
++++++++++++++++++++ EXPORTED FUNCTIONS ++++++++++++++++++
+Number of Exported Functions = 0000 (decimal)
+
+
+
+
++++++++++++++++++++ ASSEMBLY CODE LISTING ++++++++++++++++++
+//********************** Start of Code in Object .text **************
+Program Entry Point = 00403000 (prog.exe File Offset:00003C00)
+
+
+
+//******************** Program Entry Point ********
+:00403000 B800000000              mov eax, 00000000
+:00403005 890548134000            mov dword ptr [00401348], eax
+:0040300B B800000000              mov eax, 00000000
+:00403010 50                      push eax
+:00403011 BA00000000              mov edx, 00000000
+:00403016 B801000000              mov eax, 00000001
+:0040301B 69C014000000            imul eax, 00000014
+:00403021 03D0                    add edx, eax
+:00403023 B802000000              mov eax, 00000002
+:00403028 C1E002                  shl eax, 02
+:0040302B 03D0                    add edx, eax
+:0040302D B828104000              mov eax, 00401028
+:00403032 03C2                    add eax, edx
+:00403034 5A                      pop edx
+:00403035 8910                    mov dword ptr [eax], edx
+:00403037 BA00000000              mov edx, 00000000
+:0040303C B801000000              mov eax, 00000001
+:00403041 69C014000000            imul eax, 00000014
+:00403047 03D0                    add edx, eax
+:00403049 B802000000              mov eax, 00000002
+:0040304E C1E002                  shl eax, 02
+:00403051 03D0                    add edx, eax
+:00403053 B828104000              mov eax, 00401028
+:00403058 03C2                    add eax, edx
+:0040305A 8B00                    mov eax, dword ptr [eax]
+:0040305C 890548134000            mov dword ptr [00401348], eax
+:00403062 6800000000              push 00000000
+
+* Reference To: kernel32.ExitProcess, Ord:0000h
+                                  |
+:00403067 FF1551204000            Call dword ptr [00402051]
+:0040306D 00000000000000000000    BYTE 10 DUP(0)
+:00403077 00000000000000000000    BYTE 10 DUP(0)
+:00403081 00000000000000000000    BYTE 10 DUP(0)
+:0040308B 00000000000000000000    BYTE 10 DUP(0)
+:00403095 00000000000000000000    BYTE 10 DUP(0)
+:0040309F 00000000000000000000    BYTE 10 DUP(0)
+:004030A9 00000000000000000000    BYTE 10 DUP(0)
+:004030B3 00000000000000000000    BYTE 10 DUP(0)
+:004030BD 00000000000000000000    BYTE 10 DUP(0)
+:004030C7 00000000000000000000    BYTE 10 DUP(0)
+:004030D1 00000000000000000000    BYTE 10 DUP(0)
+:004030DB 00000000000000000000    BYTE 10 DUP(0)
+:004030E5 00000000000000000000    BYTE 10 DUP(0)
+:004030EF 00000000000000000000    BYTE 10 DUP(0)
+:004030F9 00000000000000000000    BYTE 10 DUP(0)
+:00403103 00000000000000000000    BYTE 10 DUP(0)
+:0040310D 00000000000000000000    BYTE 10 DUP(0)
+:00403117 00000000000000000000    BYTE 10 DUP(0)
+:00403121 00000000000000000000    BYTE 10 DUP(0)
+:0040312B 00000000000000000000    BYTE 10 DUP(0)
+:00403135 00000000000000000000    BYTE 10 DUP(0)
+:0040313F 00000000000000000000    BYTE 10 DUP(0)
+:00403149 00000000000000000000    BYTE 10 DUP(0)
+:00403153 00000000000000000000    BYTE 10 DUP(0)
+:0040315D 00000000000000000000    BYTE 10 DUP(0)
+:00403167 00000000000000000000    BYTE 10 DUP(0)
+:00403171 00000000000000000000    BYTE 10 DUP(0)
+:0040317B 00000000000000000000    BYTE 10 DUP(0)
+:00403185 00000000000000000000    BYTE 10 DUP(0)
+:0040318F 00000000000000000000    BYTE 10 DUP(0)
+:00403199 00000000000000000000    BYTE 10 DUP(0)
+:004031A3 00000000000000000000    BYTE 10 DUP(0)
+:004031AD 00000000000000000000    BYTE 10 DUP(0)
+:004031B7 00000000000000000000    BYTE 10 DUP(0)
+:004031C1 00000000000000000000    BYTE 10 DUP(0)
+:004031CB 00000000000000000000    BYTE 10 DUP(0)
+:004031D5 00000000000000000000    BYTE 10 DUP(0)
+:004031DF 00000000000000000000    BYTE 10 DUP(0)
+:004031E9 00000000000000000000    BYTE 10 DUP(0)
+:004031F3 00000000000000000000    BYTE 10 DUP(0)
+:004031FD 00000000000000000000    BYTE 10 DUP(0)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+:FFFFFFFF    End Of Listing
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

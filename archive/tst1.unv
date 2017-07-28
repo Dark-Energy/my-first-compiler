@@ -1,0 +1,12 @@
+array 10 integer m;
+array 11, 20 integer m;
+integer i;
+begin 
+  i=0; 
+  while i<10 do    m[i]=i;  INC(i); end;
+  i=0; while i<10 do writeln(m[i]); INC(i); end;
+  PrintFactorials(7);
+  PrintRazm(5);
+  PrintComb(5);
+  ShowConsole;
+end.

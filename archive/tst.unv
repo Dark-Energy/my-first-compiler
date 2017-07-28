@@ -1,0 +1,13 @@
+array 4, 4 integer a, b, m;
+integer i;
+//integer j;
+//array 3 integer v = (0, 0, 0);
+begin
+//  i=0; while i < 4 do
+  //  j=0; while j < 4 do    m[i, j]=j; 
+      //if j < 3 then  write(m[i, j])  else writeln(m[i,j]);end;
+      //inc(j); end; inc(i); end;
+//  while i<10 do  v[i]=i;  INC(i); end;
+ // i=0; while i<10 do writeln(v[i]); INC(i); end;
+  //ShowConsole;
+end.

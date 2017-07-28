@@ -1,0 +1,196 @@
+(*
+
+var
+  Reverse: boolean;
+const
+  InverseCompare : array[tvGT..tvLT] of TTokenValue = 
+  (tvLe, tvLt, tvEq, tvNe, tvGt, tvGe);
+procedure GenCompare(node: PNode);
+begin
+  with node^ do begin
+    if isConst(left) then begin  
+      CompileExpr(right);
+      WriteByte($3D); WriteInteger(left^.ConVal^.Ival);
+      // a < b ->  b => a
+      Reverse:= True;
+    end
+    else if isConst(right) then begin
+      Reverse:= False;
+      CompileExpr(left);
+      if (right^.ConVal^.ival = 0) and 
+      not (left^.ntype in [tvName, tvCallFunc]) then exit;
+      WriteByte($3D); WriteInteger(left^.ConVal^.Ival);
+    end
+    else begin
+      CompileExpr(right); 
+      writeByte($50); //push EAX
+      CompileExpr(left);
+      WriteByte($58 + EDX); // pop EDX
+      WriteByte($2B); WriteByte($C2); 
+    end;
+  end;
+end;
+
+procedure GenCompJump(cmp: PNode; Inversion: boolean);
+begin
+  if Inversion then WriteWord(InverseJumpNear[cmp^.ntype])
+  else WriteWord(JumpNear[cmp^.ntype]);
+end;
+
+ A and B and C and D
+ F4=F3 F3=F2 f2=F1 F1
+ t4=b  t3=c  t2=d t1=? 
+ a and b or c and d
+
+
+     /\
+    /  D
+   /\
+  /  C
+ / \
+A   B
+
+  if left^.ntype in Relations then begin
+     GenCompare(left);
+     if Reverse then  GenCompJump(left, False)
+     else GenCompJump(left, True);
+     ReserveForwardJump(ltFalse); 
+  end
+  else LogOp(left);
+  if right^.ntype in Relation then begin
+     GenCompare(right);
+     if Reverse then  GenCompJump(right, False)
+     else GenCompJump(right, True);
+     ReserveForwardJump(ltFalse); 
+  end
+  else LogOp(right);     
+
+
+  if left^.ntype in Relations then begin
+     GenCompare(left);
+     if not Reverse then  GenCompJump(left, False)
+     else GenCompJump(left, True);
+     ReserveForwardJump(ltTrue); 
+  end
+  else LogOp(left);
+  if right^.ntype in Relation then begin
+     GenCompare(right);
+     if not Reverse then  GenCompJump(right, False)
+     else GenCompJump(right, True);
+     ReserveForwardJump(ltFalse); 
+  end
+  else LogOp(right);     
+
+ if a and b or c and d then end;
+ 1 a = true -> 2 else ->3 //метка False для И1 - это ИЛИ2
+ 2 b = true -> lbTrue //Ложь И2 - ИЛИ2, Истина - И1 Истина
+ 3 c = true -> 4 else -> lbFalse
+ 4 d = true -> lbTrue 
+procedure  Condition(cond: PNode);
+begin 
+  if node^.ntype in Releations then begin
+    GenCompare(node);
+     if not Reverse then  GenCompJump(right, False)
+     else GenCompJump(right, True);
+end;
+*)
+
+
+        Логические выражения И и ИЛИ вычисляются по короткой схеме.
+Для генерации переходов в этих выражениях используются несколько функций.
+Сначала компилится левое выражени, затем выполняется функция CondAnd или
+CondOr. Эти функции содержат две строчки. В качестве параметра принимают
+указатель на структуру TLabel, которая содержит три поля:
+        instr - это поле используется операцией И
+        target  - это поле используется операцией ИЛИ
+        ltype - здесь находится условие перехода
+        
+        Первая резервирует переход вперед. Для И в переходе используется
+условие, обратное заданному. Пишется во-первых команда перехода, и 
+значение из TLabel.instr, в поле instr пишется затем текущий адрес.
+В простом случае поле instr содержит 0. 
+        Вторая строчка используется для покрытия переходов вперед,
+созданных функцией CondOr.
+        Функция CondOr также генерит команду перехода и адрес, только
+использует поле target, а не instr. Если операции И вложены в ИЛИ, 
+или наоборот, то следующая строчка - вызов FixLink - устанавливает  
+поле смещения команд перехода в значение текущего адреса. 
+
+
+        Рассмотрим простой случай - выражение a AND b.        
+
+        Сначала будет скомпилировано выражение а. 
+        Затем вызывается функция CondAnd. При этом поле x.instr =0, 
+x.target = 0,  x.ltype = код перехода, соответствующий а. 
+ В функции CondAnd сначала выполняется  PutJmpCF(Invert(x.ltype), x.instr); 
+Которая пишет команду перехода и смещение, содержащееся в x.instr, а 
+в x.instr пишет текущий адрес в буфере кода. Команда перехода используется
+обратная, заданной. Т.е. если выражение а было  a = b,  то переход будет
+осуществлен, если a != b. 
+        Затем выполнятеся FixLink(x.target), т.е. не выполнятеся, потому
+что x.target = 0.
+        Теперь компилируется правое выражение (b).
+        Выполняется функция And. y.target = 0, y.instr = 0. 
+        Поскольку y.instr=0, то ничего не происходит.
+        Присваивается код перехода x.ltype = y.ltype. 
+        В результате у нас есть готовый переход, адрес которого
+находится в поле x.instr. Теперь надо покрыть этот переход, т.е. 
+записать в смещение, куда переходить. Но сначала пишем еще один переход,
+если и b также равно False. При этом в поле смещения команды перехода
+запишется x.instr - адрес предыдущей команды  перехода. А сама команда
+будет соответствовать условию в b(y.ltype).
+        
+
+
+//вызывается после компилияции левого подвыражения в операции И
+procedure CondAnd(x: PLabel);
+begin
+  //резервировать переход, если Ложь
+  PutJmpCF(Invert(x.ltype), x.instr); //обратить условие перехода
+  FixLink(x.target); // писать текущий адрес 
+end;
+
+procedure _And(x, y: PLabel);
+begin
+  if y.instr <> 0 then 
+     MergedLink(x.instr, y.instr); //используется для цепочек И И И
+  x.ltype := y.ltype; //условие перехода
+  x.target := y.target;  
+end;
+
+Compile(n.left, x);
+  CondeAnd(x);
+Compile(n.right, y);
+  And(x,y);
+
+procedure CondOr(x:Plabel);
+begin
+  PutJmpCF(x.ltype, x.target); //сгенерить переход впере, если Истина
+  FixLink(x.instr); //пофиксить линки
+end;
+
+procedure Or(x,y: PLabel);
+begin
+  if x.target <> 0 then MergedLink(x.target, y.target);
+  x.ltype := y.ltype;
+  x.instr:= y.instr;
+end;
+
+PROCEDURE CFJ*(VAR x: OPL.Item; VAR loc: OPL.Label);
+BEGIN
+  PutJmpCF(Inverted(x.ltype), x.instr); 
+  loc:=x.instr;(* Fjmp   *)
+  FixLink(x.target)                  (* Tjmp here      *)
+END CFJ;
+
+
+      | Nrepeat:
+          Coff.AddLineNum(OPL.pc,SHORT(n^.txtpos.line),FALSE);
+          L:=OPL.pc; 
+          stat(n^.left); 
+          Coff.AddLineNum(OPL.pc,SHORT(n^.endLine),FALSE);
+          expr(n^.right, x); 
+          OPC.CBJ(x, L);
+          OPL.Release(x);
+
+
