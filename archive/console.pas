@@ -92,9 +92,10 @@ procedure ModalConsole;
 begin
   OutStream.Write(null,  1);
   MainConsole(0);
-  //DestroyWindow(main);
+  DestroyWindow(main);
 end;
 
 initialization
+  OutputDebugString(PChar('fuck'));
   OutStream:= TMemoryStream.Create;
 end.

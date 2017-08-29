@@ -11,13 +11,13 @@ type
    PFuncItem = ^TFuncItem;
    TFuncItem = record
      name: string;
-     funcRVA: longint;  
+     funcRVA: longint;
      CallFunc: longint;
-     Dll: TImportNode; 
-   end; 
+     Dll: TImportNode;
+   end;
 
   TImportNode = class
-  private   
+  private
     function Get(index:integer):PFuncItem;
   public
     DLLname: string;
@@ -97,6 +97,7 @@ type
     procedure InsertProc(name: string; num: integer; tip: integer);
     function InsertType(name: string; form, size: integer):PTypeDesc;
     function NewType(form: integer):PTypeDesc;
+    procedure PrintAll;
   end;
 
   ESymtabError = class(Exception);
@@ -147,6 +148,7 @@ procedure NewConSize(var S:PSymbol; size:integer);
 procedure NewConStr(var S:PSymbol; size:integer; p:pchar);
 
 implementation
+uses windows;
 
 procedure NewConVal(var S:PSymbol);
 begin
@@ -219,6 +221,23 @@ begin
   end; 
 end;
 
+procedure TSymtab.PrintAll;
+var
+  next: PSymbol;
+  head: PSymbol;
+begin
+  head := FHead;
+  while head <> nil do
+  begin
+    next := head^.next;
+    if next <> nil then
+    begin
+      MessageBox(0, pchar('found symbol is name ' + next^.name), '', mb_ok);
+    end;
+    head := next;
+  end;
+end;
+
 function TSymtab.NewSym:PSymbol;
 begin
   New(result);
@@ -281,7 +300,7 @@ begin
       if sym = nil then break;
       if name < Sym^.name then  
         sym:= sym^.left
-      else if name > Sym^.name then 
+      else if name > Sym^.name then
         sym:= sym^.right
       else break;
     end;
@@ -321,7 +340,15 @@ procedure TSymtab.InsertStdProcs;
 begin
   InsertProc('inc', incfn, 0);
   InsertProc('dec', decfn, 0);
+  //InsertProc('writeln', console_log, 0);
+  //PrintAll;
 end;
+
+procedure console_log(m: string);
+begin
+  writeln(m);
+end;
+
 
 function TSymtab.InsertType(name: string; form, size: integer):PTypeDesc;
 var
@@ -331,7 +358,7 @@ begin
   result^.size:= size;
   sym:= Insert(name);
   sym^.mode:= modeType;
-  sym^.tip:= result; 
+  sym^.tip:= result;
 end;
 
 procedure TSymtab.InsertTypes;
@@ -353,13 +380,18 @@ end;
 function TImportNode.Find(name:string):PFuncItem;
 var
   i:integer;
-begin 
+  item: PFuncItem;
+begin
   result:= nil;
-  for i:= 0 to FuncList.Count-1 do 
-    if PFuncItem(FuncList[i])^.name = name then begin
-      result:= FuncList[i];
+  for i:= 0 to FuncList.Count-1 do
+  begin
+    item := PFuncItem(FuncList[i]);
+    if item^.name = name then
+    begin
+      result := FuncList[i];
       break;
-    end; 
+    end;
+  end;
 end;
 
 function TImportNode.Get(index:Integer):PFuncItem;
@@ -397,6 +429,7 @@ end;
 function TImportList.Get(index:integer):TImportNode;
 begin
   result:= TImportNode(DllList[index]);
+ //MessageBox(0, pchar('get index of dll ' + result.DLLname), '', mb_ok);
 end;
 
 constructor TImportList.Create;
@@ -405,7 +438,7 @@ begin
 end;
 
 destructor TImportList.Destroy;
-var 
+var
   i: integer;
 begin
   for i:= 0 to DllCount-1 do 
@@ -414,6 +447,7 @@ begin
   inherited Destroy; 
 end;
 
+//find dll
 function TImportList.Find(name:string):TImportNode;
 var
   i:integer;
@@ -425,6 +459,7 @@ begin
      end;
 end;
 
+//add dll
 function TImportList.AddModule(name: string): TImportNode;
 begin
   result:= TImportNode.Create;
@@ -432,6 +467,8 @@ begin
   DllList.Add(result);
   inc(DllCount);
 end;
+
+
 
 procedure TSymtab.InsertApi;
 var
@@ -445,9 +482,9 @@ begin
     s:= Insert('writeln'); s^.mode:= ModeApiFunc; s^.adr:=0;
     s^.func:= AddFunc('writeln');
     s:= Insert('write'); s^.mode:= modeApiFunc; s^.adr:=0;
-    s^.func:= AddFunc('write'); 
+    s^.func:= AddFunc('write');
     s:= Insert('box'); s^.mode:= modeApiFunc; s^.adr:=0;
-    s^.func:= AddFunc('ShowMessage'); 
+    s^.func:= AddFunc('ShowMessage');
     s:= Insert('ShowConsole'); s^.mode:= ModeApiFunc; s^.adr:=0;
     s^.func:= Addfunc('ModalConsole');
   end;

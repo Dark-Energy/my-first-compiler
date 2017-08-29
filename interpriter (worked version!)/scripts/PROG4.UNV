@@ -1,0 +1,483 @@
+
+// рекурсивный расчет факториала
+defun int factorial(int f);
+begin
+  if f = 1 then return 1;
+  else return f*factorial(f-1);
+  endif;
+endfn;
+
+
+string s:= "abcde";
+
+defun void perest1(int m);
+var
+  int i;
+  char c;
+begin
+  if m=0 then writeln(s);
+  else 
+    perest1(m-1);
+    for i:= 0 to m-1 do 
+      c:=s[i];  s[i]:=s[m]; s[m]:=c;
+      perest1(m-1);
+      c:=s[i]; s[i]:=s[m]; s[m]:=c;
+    next;
+  endif;
+endfn;
+
+
+
+int len:=4;
+bool vector flag[5]; 
+string dest:= "     ";
+int i;
+
+
+//for i:= 0 to len-1 do flag[i]:=true;next;
+
+//сама процедура
+defun void perest2(int pos);
+var
+  int i;
+begin
+  if pos = len then writeln(dest);
+  else 
+    for i:=0 to len-1 do 
+      if flag[i] then 
+        flag[i]:=false;
+        dest[pos]:=s[i];  
+        perest2(pos+1);
+        flag[i]:=true;
+      endif;
+     next;
+   endif;
+endfn;
+
+
+
+bool wrap:= false;
+string p; p:=s;
+
+defun void prm(int n);
+var
+  int i,j; 
+  char tmp;
+begin
+  if n = 0 then 
+    wrap := TRUE;  return 0; endif;
+  i := n-1;
+  while True do 
+    if i = 0 then  wrap := true;  break;   endif;
+    if P[i-1] < P[i] then 
+      j := n-1;
+       while P[j] <= P[i-1] do  j := j-1; wend;
+       tmp := P[j]; P[j] := P[i-1]; P[i-1] := tmp;
+       wrap := FALSE;
+       break;
+     endif;
+     i := i-1;
+   wend;
+   j := n-1;
+   while i<j do 
+     tmp := P[j]; P[j] := P[i]; P[i] := tmp;
+     i := i+1;
+     j := j-1;
+   wend;
+endfn;
+
+
+defun void NextPerm();
+begin
+  REPEAT
+    writeln(P);
+    Prm(len);
+  UNTIL wrap;
+endfn;
+
+//NextPerm();
+
+
+string source:=s;
+defun void cmb();
+var
+  int i, j;
+begin
+  for i:= 0 to len-1 do 
+    dest[0]:=source[i];
+    for j:=i+1 to len do 
+      dest[1]:= source[j];
+      Writeln(dest);
+    next;
+  next;    
+endfn;
+
+//cmb();
+
+
+
+defun void  cmb3(int pos,int kol,int ini);
+var
+  int i,j;
+begin
+  if kol= 0 then  Writeln(dest); 
+  else 
+    j:=(len-kol)+1;
+    for i:= ini to j do 
+      dest[pos]:=source[i];
+      cmb3(pos+1,kol-1,i+1);
+    next;
+  endif;
+endfn;
+
+//cmb3(0,2,0);
+
+
+
+int N:=5;
+int matrix Dist[5][5]:=(
+(1,3,5,4,6),
+(3,2,5,4,7),
+(4,8,6,9,7),
+(3,4,2,7,6),
+(6,9,3,2,5) );
+
+int vector Amin[5];
+int vector A[5];
+int Lmin;
+bool b:=false;
+
+
+//сама процедура
+defun void Comm(int pos);
+var
+  int i,L;
+begin
+  if pos = N then 
+    L:=0;
+    for i:= 0 to N-2 do 
+      L+=dist[A[i]][A[i+1]];  
+    next;
+    if L<Lmin then 
+      Lmin:=L;
+      Amin:=A;
+    endif;
+  else 
+     for i:=0 to N-1 do 
+      if flag[i] then 
+        flag[i]:=false;
+        A[pos]:=i; 
+        Comm(pos+1);
+        flag[i]:=true;
+      endif;
+     next;
+  endif;
+endfn;
+
+
+
+defun void CommCalck();
+begin
+//инициализация массива флагов
+  for i:= 0 to len-1 do flag[i]:=true;next;
+  LMin:=2000000000;
+  Comm(0);
+  for i:= 0 to N-1 do write(Amin[i]);write(",");next;
+  Writeln("");
+  Writeln(Lmin);
+endfn;
+
+
+int L:=0;
+defun void Comm2(int pos);
+var
+  int i;
+begin
+  if pos = N then 
+    if L < Lmin then Lmin:=L; Amin:=A; 
+    endif;
+  else 
+     for i:=0 to N-1 do 
+      if flag[i] then 
+        flag[i]:=false;
+        A[pos]:=i; 
+        if pos > 0 then L:=L+Dist[A[pos-1]][i];endif;
+        if L < Lmin then  Comm2(pos+1);endif;
+        if pos > 0 then L-=Dist[A[pos-1]][i]; endif;
+        flag[i]:=true;
+      endif;
+     next;
+  endif;
+endfn;
+
+
+defun void Comm2Calck();
+begin
+//инициализация массива флагов
+  N:=5;
+  for i:= 0 to len-1 do flag[i]:=true;next;
+  LMin:=2000000000;
+  Comm2(0);
+  for i:= 0 to N-1 do write(Amin[i]);write(",");next;
+  Writeln("");
+  Writeln(Lmin);
+endfn;
+
+
+CommCalck();
+Comm2Calck();
+
+//колво размещений
+defun int RazmKol(int n,int m);
+var
+  int i, result;
+begin
+if (m > n or m < 0 || n < 0) then 
+  return 0;
+else 
+  if (n=0 or m=0) then return 1;
+endif;
+
+result:=n;
+if m > 1 then 
+  for i:= 1 to m-1 do 
+    result:=result*(n-i);
+  next;
+endif;
+return result;
+endfn;
+
+//writeln(RazmKol(5,4));
+
+defun void RazmTable();
+var
+  int n, m;
+begin
+  writeln("таблица размещений ");
+  for n:=0 to 10 do 
+   write("из "); writeln(n);
+    for m:= 0 to n do 
+      write("    по "); write(m);write(":  ");
+      writeln(RazmKol(n,m));
+    next;
+  next;
+endfn;
+
+//RazmTable();
+
+// итеративный факториал
+defun int factorial2(int n);
+var
+  int i;
+begin
+  if n = 1 then return 1;endif;
+  i:=n;
+  while n-- >1 do i*=n; wend;
+  return  i;
+endfn;
+
+
+//колво сочетаний
+//тривиально
+defun int CountComb(int n, int m);
+begin
+  n:= RazmKol(n, m);
+  n /= factorial2(m);
+  return n;
+endfn;
+
+//Writeln(CountComb(5, 3));
+
+
+defun int RazmCount2(int n, int m);
+var
+  int i;
+begin
+  if m> n || n<0 || m< 0 then 
+    MesBox("неверное значение"); 
+    return 0;
+  endif;
+  if n = 0 OR m=0 then return 1;
+  else if m = 1 then return n;
+  return:= (n-m+1)* a(n,m-1);
+  endif;
+endfn;
+
+//writeln(RazmCount2(4,2));
+
+
+
+
+//рекурсивные вычисления колва размещений
+// если m = 0 , то вернуть 1 
+//если m=1, то вернуть n 
+// вычисляет n * (n-1)  * (n-2) 
+// с каждым разом число m уменьшается, пока не станет равным 1
+//тогда из рекурсии будет возвращено n, которое будет умножено
+// на n-1 и т.д. пока не будет самый первый вызов, где  n-m+1
+
+defun int RK(int n,int m);
+var 
+  int res;
+begin
+  if m = 0 then return 1; 
+  else if m = 1 then return n; 
+  else res:= n-m+1;
+     //res:=res*RK (n,m-1);
+     // res*=RK(n, m-1);
+      return res*RK(n, m-1);
+  endif;
+  return res;
+endfn;
+
+//writeln(RK(4,2));
+
+// колво размещений
+//i принимает значения от 1 до m-1
+// res умножается на n-i
+// т.е. последовательно на числа от n-1 до n-m+1
+defun int RK2(int n,int m);
+var
+  int t,i,res;
+begin
+  if m=0 then res:=1 else res:=n; i:=1; endif;
+  while i < m do 
+    //t:=n-i; res:=res*t; i=i+1; 
+    // res*=n-i; i+=1;
+       res*=n-i++;
+  wend;
+  return res;
+endfn;
+
+//writeln(RK2(4, 2));
+
+
+//колво сочетаний
+//колво размещений из n по m разделить на факториал m
+// C(n,m) = A(n,m) DIV P(m);
+defun int CC1(int n,int m);
+begin
+  return RK2(n,m) div factorial2(m);
+endfn;
+
+//writeln(CC1(5,2));
+
+//факториал n разделить на произведение факториалов m и n-m
+// C(n,m) = n! DIV m!*(n-m)! = n! DIV (n-m)! DIV (m!);
+// A(n,m) = n! DIV (n-m)! ; C(n,m) = A(n,m) DIV m!;
+defun int CC2(int n, int m);
+begin
+  return factorial2(n) div (factorial2(m)*factorial2(n-m));
+endfn;
+
+//writeln(CC2(5,2));
+
+
+//вычислить колво размещений и разделить на m!: A(n,m) DIV m!
+defun int CC3(int n,int m);
+var 
+  int res,i;
+begin
+    if m = 0 then return 1; endif;
+    i:=1; res:=n;
+     while i < m do 
+       res*=n-i++; 
+     wend;
+     res/= factorial2(m);
+    return res;
+endfn;
+
+//writeln(CC3(5,2));
+
+
+//еще один неэффективный способ n! DIV (m! * (n-m)!) 
+defun int CC4(int n,int m);
+var
+  int t,r;
+begin
+  if m= 0 then return 1; endif;
+    // t:=factorial2(m); r:=factorial2(n-m); r*= t;
+     r:= factorial2(m) * factorial2(n-m); 
+     return factorial2(n) div r;
+endfn;
+
+//writeln(CC4(5,2));
+
+
+// C(n,0)+C(n,1)+...+C(n,n);
+defun int CC5(int n);
+var
+  int i, res;
+begin
+  i:=0; res:=0;
+  while i <= n do 
+    res+= CC3(n,i); i+=1;
+  wend;
+  return res;
+endfn;
+
+//writeln(CC5(4));
+
+// C(n,2); C(n,2) = (n-1)+(n-2)+..+1;
+defun int CC6(int n);
+var
+  int i;
+begin
+  if n < 2 then return 0; endif;
+  i:=0; n-=1; 
+  while n>0 do i+=n; n-=1;  wend;
+  return i;
+endfn;
+
+
+//C(0,2), C(1,2), C(2,2),..,C(7,2);
+defun void CC7();
+var
+  int n;
+begin
+  writeln(" сочетания по 2 "); 
+  for i:= 0 to 7 do 
+   write("из ");   write(i); write(" == ");
+    writeln(CC6(i));  
+  next;
+endfn;
+
+//CC7();
+
+//C(n, 3) = C(n-1,2)+ C(n-2, 2) + C(n-3,2) = 6+3+1; n=5;
+defun int CC8(int n);
+var
+  int i,j,t;
+begin   
+  if n < 3 then return 0; endif;
+  i:=0; n-=1; j:=0;
+  while n > 1 do  
+    n-=1; t:=n; i:=0;
+    while n > 0 do i+=n--;  wend;  
+    j+=i; n:=t;
+  wend;
+  return j;
+endfn;
+
+
+//writeln(CC8(4));
+//writeln(CC3(6,2));
+
+defun void CombTab();
+var
+  int n, m;
+begin
+  writeln("таблица сочетаний ");
+  for n:= 0 to 10 do 
+    write("из "); writeln(n); write("  ");
+    for m:= 0 to n do 
+      write(CC3(n,m));write("  ");
+     next;
+     writeln("; ");
+  next;
+endfn;
+
+
+CombTab();
+
+

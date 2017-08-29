@@ -1,0 +1,115 @@
+real numberValue; 
+char CurTok; //текуща€ лексема
+int CurPos; // позици€ в строке 
+string expression[256]; // разбираемое выражение
+int len; // длина выражени€
+
+
+defun real Main();
+begin
+  len:=length(expression);
+  curpos:=0;
+  NumberValue:=0.0;
+  CurTok:=0;
+  readtoken();
+  return expr();
+endfn;
+
+string s[10];
+
+//читает лексему
+defun void readtoken();
+var
+  int i;
+  char c;
+begin
+  i:=0;
+  if curpos => len then CurTok:=0;
+  else c:=expression[curpos];
+    if c=> '0' && c<= '9' then 
+     while curpos <= len do 
+         c:=expression[curpos];
+       if (c < '0' || c >'9') and c<>'.' then  break; endif;
+         curpos+=1;
+         s[i++]:=c;
+      wend;
+      s[i]:=0;
+      NumberValue:=StrToFloat(s);
+    CurTok:='9';
+  else Select c of  
+      case '+': CurTok:=c;
+      case '-': CurTok:=c;
+      case '*': CurTok:=c
+      case '/': CurTok:=c;
+      case '(': CurTok:=c;
+      case ')': CurTok:=c;
+      default MesBox("Ќедопустимый символ");
+    endSel;
+  curpos+=1;
+ endif;
+endif;
+endfn;
+
+//складывает и вычитает
+defun real expr();
+var
+  real result;
+  real count;
+begin
+   count:=0;
+   result:=term();
+   while true do 
+     Select CurTok of
+       case '+':  readtoken(); result+=term();
+       case '-':  readtoken(); result-=term();
+       default break;
+     EndSel;
+   Wend;
+  return result;
+ Endfn;
+
+//умножает и делит
+ defun real term();
+ var
+   real result, hold;
+ begin
+   result:=prim();
+   while true do
+    Select CurTok of
+    case '*': readtoken(); result*= prim();
+    case '/': readtoken();
+      hold:= prim();
+       if hold = 0 then 
+        MesBox("ƒеление на 0!"); return 0; endif;
+       Result/= hold;
+     default break;
+    EndSel;
+  Wend;
+  return result;
+EndFn;
+
+//возвращает число или значение выражени€ в скобках
+defun real prim();
+var
+  real result;
+begin
+  Select CurTok of
+  case '9': 
+    Result:= NumberValue;
+    readtoken();
+    return result;
+   case '(':
+     readtoken();
+        result:=expr();
+        if CurTok <> ')' then 
+           MesBox("требуетс€ )");return 0; endif;
+        readtoken();
+        return result;
+    EndSel;
+endfn;
+
+expression:= "2*(23-11+2)";
+writeln(Main());
+
+
+//по return из цикла лушче не выходить

@@ -1,0 +1,173 @@
+/*
+int k;
+defun int fact(int x);
+var
+int i;
+Begin
+writeln(x);
+if x=0 then return 1;
+else x:=x*fact(x-1);
+end;
+k:=0;
+k:=k+x;
+writeln(k);
+return x;
+endfn;
+
+writeln(fact(4));
+
+*/
+
+
+string s:="абвгд";
+char c;
+//int k:=0,t:=0;
+
+/*
+defun int perm(int m);
+var
+  int i;
+begin
+  k:=k+1;
+  if m = 0 then writeln(s);
+  else 
+    perm(m-1);
+    for i:=0 to m-1 do 
+      
+      c:= s[i];
+      s[i]:=s[m];
+      s[m]:=c;
+     
+      perm(m-1);
+      c:=s[m];
+      s[m]:=s[i];
+      s[i]:=c;
+      t:=t+1;
+   end;
+ end;
+ return 0;
+endfn;
+
+perm(3);
+*/
+
+// еще перестановки
+/*
+bool vector flag[5];
+int i;
+for i:=0 to 4 do  flag[i]:=true; end;
+
+int len:=3;
+string dest:="00000";
+
+dest[4]:=' ';
+
+defun int perm1(int pos);
+var 
+  int i;
+begin
+  if pos >len then writeln(dest);
+  else 
+    for i:=0 to len do 
+      if flag[i] then 
+        flag[i]:=false;
+        dest[pos]:=s[i];
+        perm1(pos+1); 
+        flag[i]:=true; 
+      end;
+    end;     
+  end;
+  return 0;
+endfn;
+
+perm1(0);
+MesBox("Выполнено!");
+*/
+
+
+
+//нерекурсивная процедура
+
+Bool Wrap:=false;
+char tmp;
+int len:=4;
+
+string p:="asdf";
+defun int Prm(int n);
+VAR 
+int i,j; 
+begin
+  if n = 0 then wrap := TRUE;  return 0; end;
+  i := n-1;
+  while True do 
+    if i = 0 then  wrap := true;  break;   end;
+    if P[i-1] < P[i] then 
+      j := n-1;
+      while P[j] <= P[i-1] do  j := j-1; end;
+      tmp := P[j]; P[j] := P[i-1]; P[i-1] := tmp;
+      wrap := FALSE;
+      break;
+    end;
+     i := i-1;
+   end;
+   j := n-1;
+   while i<j do 
+     tmp := P[j]; P[j] := P[i]; P[i] := tmp;
+     i := i+1;
+     j := j-1;
+   end;
+endfn;
+
+
+len:=4;
+wrap:=false;
+
+ // REPEAT   Prm(len); UNTIL wrap;
+
+  REPEAT
+    writeln(P);
+    Prm(len);
+  UNTIL wrap;
+end;
+
+
+
+/*
+int i, j, k:=0;
+int l:= 0;
+
+for l:= 0 to 1 do 
+if l>0 then l:=34;
+else 
+  for i:= 1 to 3 do 
+    for j:= 1 to 3 do 
+     k:=k+1;
+    end;
+  end;
+end;
+writeln(k);
+end;
+
+writeln(k);
+
+*/
+
+/*int k:=0;
+
+defun int test(int m);
+var
+  int i;
+begin
+  if m=1 then writeln("a");
+  else 
+    test(m-1);
+    for i:= 1 to m-1 do 
+      test(m-1);
+    end;
+  end;
+endfn;  
+
+test(3);
+//writeln(k);
+
+*/

@@ -2,8 +2,11 @@ unit pe;
 interface
 uses SysUtils, Windows, classes, symtab;
 
-procedure GenFile(name: string; ACode, AData: pchar; 
-   ACodeSize, ADataSize, AEntryPoint: integer; AImportList: TImportList);
+procedure GenFile(
+    name: string; 
+    ACode, AData: pchar; 
+   ACodeSize, ADataSize, AEntryPoint: integer; 
+   AImportList: TImportList);
 var
  BASECODE: integer = $400000;
   STACKMAX : integer = $100000;
@@ -417,8 +420,10 @@ begin
   WriteAlign(Handle, $200);
 end;
 
-procedure GenFile(name: string; ACode, AData: pchar; 
-   ACodeSize, ADataSize, AEntryPoint: integer; AImportList: TImportList);
+procedure GenFile(name: string;
+    ACode, AData: pchar;
+   ACodeSize, ADataSize, AEntryPoint: integer;
+   AImportList: TImportList);
 var
   handle: THandle;
 begin

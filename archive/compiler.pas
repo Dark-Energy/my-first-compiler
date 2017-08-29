@@ -6,45 +6,105 @@ type
   private
     FSymtab: TSymtab;
   public
-    constructor Create; 
+    constructor Create;
     destructor Destroy; override;
     procedure Compile(s: string);
-    property  SymTab: TSymTab read FSymtab; 
+    function ParseTree(sourceCode:string):TParseTree;
+    procedure Use(code: TGeneratedCode);
+    property  SymTab: TSymTab read FSymtab;
   end;
 
 implementation
 
+function TCompiler.ParseTree(sourceCode:string):TParseTree;
+var
+  parser: TParser;
+  tree: TParseTree;
+begin
+    //create parser
+  parser:= TParser.Create;
+  try
+    //create symbol table
+    parser.Symtab:= FSymtab;
+    try
+        //parse text and get Abstract Syntax Tree
+      tree:= parser.Parse(sourceCode);
+    except
+     on E:Exception do
+      begin
+          MessageBox(0, pchar('Error in parsing programm text!'+E.Message),'',mb_ok);
+          raise;
+      end
+    end
+  finally
+    parser.Free;
+    writeln('syntactic analysis done. Syntaxtic Tree created');
+  end;
+  result := tree;
+end;
+
 procedure TCompiler.Compile(s: string);
 var
-  p: TParser;
   g: TGenerator;
-  t: TParseTree;
+  tree: TParseTree;
   value: longint;
   f: pchar;
-  Code, Data:pointer;
-  Dsize, csize, epoint: integer;
+  generatedCode : TGeneratedCode;
 begin
-  p:= TParser.Create;
-  try
-    p.Symtab:= FSymtab;
-    t:= p.Parse(s);
-  finally
-    p.Free;
-  end;
+   //create parser
+   tree := ParseTree(s);
+
+  //then generation code
+  writeln('try generated code');
   g:= TGenerator.Create;
   try
-    g.Symtab:= FSymtab; 
-    g.Compile(t.Root);
-    code:= g.GetCode(csize, dsize, data, epoint);
+    //we simple copy what? object symtab? class symtabl?
+    //oh, what stupid solution
+    g.Symtab:= FSymtab;
+    //compile syntax tree
+    writeln('try compile syntactic tree');
+    g.Compile(tree.Root);
+    //get code
+    writeln('get done code');
+    g.GetCode(generatedCode);
   finally
-   t.Free;
+   tree.Free;
    g.Free;
-  end;  
+  end;
+  Use(generatedCode);
+end;
+
+
+
+procedure TCompiler.Use(code: TGeneratedCode);
+type
+  shit =  function: integer;
+var
+ f : integer;
+ tmp: PByte;
+begin
+{  try
+    tmp := code.CodePtr;
+    INC(tmp, code.EnterPoint);
+    f :=  shit(tmp)();
+  except
+    on E:Exception do
+    begin
+      MessageBox(0, pchar(' ' +E.Message), '', mb_ok);
+      raise
+    end
+  end;
+
+  writeln(inttostr(f));
+  }
+
   try
-    GenFile('prog.exe', code, data, csize, dsize, epoint, FSymtab.ImportList);
+    GenFile('prog.exe', code.CodePtr, code.data, code.CodeSize, code.DataSize, code.EnterPoint, FSymtab.ImportList);
   finally
-    if code <> nil then  FreeMem(code, csize);
-    if (data <> nil) and (dsize>0) then FreeMem(data, dsize); 
+    if code.CodePtr <> nil then  FreeMem(code.CodePtr, code.CodeSize);
+    if (code.data <> nil) and (code.DataSize>0) then FreeMem(code.data, code.DataSize);
+    if (code.CodePtr = nil) then writeln('code is nil');
+    if (code.data = nil) then writeln('data is nil');
   end;
 end;
 

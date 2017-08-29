@@ -1,0 +1,31 @@
+int  vector  v[10];
+
+string s:= "Hoola-Hoola girls like Hooligans";
+int vector d[256];
+string p:="Hooligan";
+int M:=8, N:=Length(s)-1;
+int i, i0, j, k;
+
+
+//инициализация
+for i:= 0 to 255 do d[i]:=M;next;
+for j:= 0 to M-2 do d[p[j]]:=M-j-1;  next;
+
+
+
+i:=M; i0:=0;
+repeat
+  j:=M; i0:=0;
+  while i0< i do write(s[i0++]); wend; writeln(i);
+  repeat  j-=1; i-=1; 
+      if J<0 then break; endif; 
+      writeln(s[i]);
+  until j<0 || p[j]!=s[i];
+  i+=d[s[i-1]];
+until j<0 or i => N ;
+if j< 0 then MesBox("найден!"); endif;
+writeln(j);
+
+
+  
+

@@ -62,11 +62,15 @@ begin
     tvDot: result:= 'точка';
     tvInteger: result:= 'Integer';
     tvRp: result:= ')';
-    tvLp: result:= '('; 
+    tvLp: result:= '(';
     tvComma: result:= ',';
     tvOr: result:= 'OR';
     tvAnd: result:= 'AND';
-    else result:='shit';
+    else begin
+      MessageBox(0, pchar('found strange lexem'), '', mb_ok);
+      //MessageBox(0, pchar(FBufptr^), '', mb_ok);
+      result:='shit';
+    end
   end;
 end;
 
@@ -89,17 +93,17 @@ const
 procedure TScanner.Skip;
 begin
   while True do begin
-    while (FBufptr^ > #0) and (FBufptr^ <= ' ')  do begin 
+    while (FBufptr^ > #0) and (FBufptr^ <= ' ')  do begin
       if FBufptr^ = #13 then inc(FLineNumber);
       inc(FBufptr);
-    end; 
+    end;
     if (FBufptr^ <> #0) and (FBufptr[0] = '/') and (FBufptr[1] = '/') then begin
       while (FBufptr^ > #0) and (FBufptr^ <> #13) do inc(FBufptr);
-      if FBufptr^ = #13 then begin 
+      if FBufptr^ = #13 then begin
         inc(FBufptr, 2);
         inc(FLineNumber);
-      end; 
-    end 
+      end;
+    end
     else exit;
   end;
 end;
@@ -118,19 +122,19 @@ begin
     s:= UpperCase(s);
     result:= tvName;
     CASE s[1] OF
-      'A': 
+      'A':
         if s = 'ARRAY' then result:= tvArray;
-      'B': 
+      'B':
         if s='BEGIN' then result:= tvBegin
         else if s = 'BY' then result:= tvBy;
-      'D': 
+      'D':
         if s = 'DO' then result:= tvDo
         else if s = 'DEFUN' then result:= tvDefun;
-      'E': 
+      'E':
         if s = 'ELSE' then result:= tvElse
         else if s = 'END' then result:= tvEnd
         else if s = 'ELSIF' then result:=  tvElsIf;
-      'F': if s = 'FOR' then result:= tvFor 
+      'F': if s = 'FOR' then result:= tvFor
         else if s = 'FALSE' then result:= tvFalse;
       'I': if s = 'IF' then result:= tvIf;
         //else if s = 'INTEGER' then result:= tvInteger;

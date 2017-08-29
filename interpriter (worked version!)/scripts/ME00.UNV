@@ -1,0 +1,46 @@
+
+
+string s := "когда-то";
+string s2[10];
+int len:=StrLen(s);
+
+defun void main();
+var
+  int k,  i, j;
+begin
+  len:=strlen(s);
+  k:=0;
+  while (s[k] != '-') do k+=1; wend; 
+  i:=k+1;  j:=0;
+  while (i < len) do  s2[j++]:=s[i++]; wend;
+  s2[j]:=s[k];
+  i:=0;j+=1;
+  while (i < k) do s2[j++]:=s[i++];wend;
+  write(s2); writeln(j); writeln(k);
+endfn;
+
+
+main();
+
+int i;
+for i:=0 to 7 do write(s2[i]);next;
+
+/*
+defun void main();
+var
+  int k;
+begin
+   k=0;
+   while (s[k] != '-') do k++; wend;
+    i:=k+1; j:=0;
+   while (i < l)do s2[j]:=s[i]; j++; i++; wend;
+   s2[j]:=s[k];
+   i:=0;j++;
+   while (i < k) do s2[j]:=s[i];i++;j++;wend;
+
+endfn;
+*/
+
+
+
+

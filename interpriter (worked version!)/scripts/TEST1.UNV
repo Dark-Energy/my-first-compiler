@@ -1,0 +1,15 @@
+int i:=23;
+int t:=44;
+select i of
+case 1: i:=34;write("ase");
+case 20:
+    select t of 
+     case 2: writeln(2);
+     case 44: writeln(44);
+     case 60: writeln(60);
+    endsel;
+case 23: i:=45;write("shite");
+case 45: i:=23;write("fuck");
+default MesBox("f");
+endsel;
+write(i);

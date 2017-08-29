@@ -1,0 +1,190 @@
+/*int k;
+defun int fact(int x);
+var
+int i;
+Begin
+writeln(x);
+if x=0 then return 1;
+else x:=x*fact(x-1);
+endif;
+k:=0;
+k:=k+x;
+writeln(k);
+return x;
+endfn;
+
+writeln(fact(4));
+*/
+
+
+string s:="абвгд";
+//char c;
+//int k:=0;
+
+/*
+defun int perm(int m);
+var
+  int i;
+begin
+  if m = 0 then writeln(s);
+  else 
+    perm(m-1);
+    for i:=0 to m-1 do 
+      c:= s[i];
+      s[i]:=s[m];
+      s[m]:=c;
+      k:=k+1;
+      perm(m-1);
+      c:=s[m];
+      s[m]:=s[i];
+      s[i]:=c;
+   next;
+ endif;
+ return 0;
+endfn;
+
+*/
+
+//bool vector flag[5];
+//int i;
+//for i:=0 to 4 do  flag[i]:=true; next;
+
+//int len:=3;
+//string dest:="00000";
+
+//dest[4]:=' ';
+/*
+defun int perm1(int pos);
+var 
+  int i;
+begin
+  if pos >len then writeln(dest);
+  else 
+    for i:=0 to len do 
+      if flag[i] then 
+        flag[i]:=false;
+        dest[pos]:=s[i];
+        perm1(pos+1); 
+        flag[i]:=true; 
+      endif;
+    next;     
+  endif;
+  return 0;
+endfn;
+*/
+//perm1(0);
+//MesBox("Выполнено!");
+
+
+/*
+Bool Wrap:=false;
+char tmp;
+int len:=4;
+
+string p:="asdf";
+defun void Prm(int n);
+VAR 
+int i,j; 
+begin
+  if n = 0 then 
+    wrap := TRUE;  return 0; endif;
+  i := n-1;
+  while True do 
+    if i = 0 then  wrap := true;  break;   endif;
+    if P[i-1] < P[i] then 
+      j := n-1;
+       while P[j] <= P[i-1] do  j := j-1; wend;
+       tmp := P[j]; P[j] := P[i-1]; P[i-1] := tmp;
+       wrap := FALSE;
+       break;
+     endif;
+     i := i-1;
+   wend;
+   j := n-1;
+   while i<j do 
+     tmp := P[j]; P[j] := P[i]; P[i] := tmp;
+     i := i+1;
+     j := j-1;
+   wend;
+endfn;
+*/
+
+
+/*  REPEAT
+    writeln(P);
+    Prm(len);
+  UNTIL wrap;
+end;
+*/
+
+/* tokenArray:[1..11]og TTokenType =
+(ttAdd, ttSub, ttMul, ttDiv, ttMod, ttFDiv, 
+ttEq, ttGt, ttLt, ttNot, ttLNot, ttXor, ttor, ttAnd)
++-*\/%<>=!~ ^|&
+
+первый символ
++ - * / \ % ~ ! = < > | ^ & 
+второй символ
+= + - ^ | & * > <  
+
+третий символ
+=
+
+
+== , +=  , -= , *= , /= , \= , %= , ~= , ^= , &=, |= , !=
+||, &&, ^^, <= >= <> >< =< =>  ** << >> ++ --
+
+<<= >>= **= 
+
+Token:= FirstToken[BufPtr^];
+Bufptr:= BufPtr+1;
+if bufPtr^in SecToken then 
+  Token:= SecToken[Token];
+Bufptr:=BufPtr+1;
+if BufPtr^= '=' then 
+
+
+*/
+
+
+/*
+string t:= "+-/*\%~^&|!=<>?:,.;";
+
+int i;
+for i:= 0 to 18 do 
+  write(ord(t[i]));
+  Write(": ");
+  Writeln(t[i]);
+next;
+
+*/
+/* Tokens:array[char] of TTokenType = (
+ttAdd, ttSub, ttMul, ttDiv, ttFDiv, ttMod, 
+ttGt, ttLt, ttEq, ttXor, ttOr, ttLnot, ttNot,
+ttAnd, ttSemi, ttColon, ttBQuote, ttQuote, 
+ttComma, ttDot )
+
+Token:= Tokens[c];
+BufPtr:=BufPtr+1;
+if BufPtr^ in SecondChars then 
+  if BufPtr^ = '=' then 
+    token:= Tokens[token]
+  else token:= Tokens[BufPtr^]
+   
+ 
+< + > - * / \ % ^ | ~ ! : = & //  = 
+
+< //  , <= << , 
+!=
+><
+>=
+=>
+
+*/
+
+
+
+int i:=100;
+
+writeln(--i);
+writeln(++i);

@@ -7,11 +7,18 @@ type
   TLabel = record
     instr: integer;
     target: integer;
-    ltype: integer;  
+    ltype: integer;
   end;
   PLabelArray = ^TLabelArray;
   TLabelArray = array[0..0] of TLabel;
-  
+
+  TGeneratedCode = record 
+    CodeSize: integer;
+    DataSize: integer;
+    Data: pointer;
+    EnterPoint: integer;
+    CodePtr: pointer;
+  end;
 
   TGenerator = class
   private
@@ -77,8 +84,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Compile(root: Pnode);
-    function GetCode(var CodeSize, SizeOfData:integer; 
-     var Data: pointer;var Enter: integer):pointer;
+  function GetCode(var code: TGeneratedCode):pointer;
     property Symtab: TSymtab read FSymtab write FSymtab;
   end;  
 var
@@ -1074,22 +1080,30 @@ begin
   CompileBlock(root);
 end;
 
-function TGenerator.GetCode(var CodeSize, SizeOfData:integer;
-  var Data:pointer; var Enter: integer):pointer;
+//record
+//CodeSize: integer;
+//DataSize: integer;
+//Data: pointer;
+//Enter: integer;
+//CodePtr: pointer
+function TGenerator.GetCode(
+  var code: TGeneratedCode):pointer;
 begin
-  SizeOfData:= FSizeOfData;
+  code.DataSize:= FSizeOfData;
   if FSizeOfData > 0 then
-    GetMem(Data, FSizeOfData);
+    GetMem(code.Data, FSizeOfData);
   while Strings<> nil do begin
     with Strings^.ConVal^ do
-      System.Move(str^, (pchar(Data)+dop)^, ival+1);
+      System.Move(str^, (pchar(code.Data)+dop)^, ival+1);
     Strings:= Strings^.link;
   end;
-  StaticVars:= Data;
+  StaticVars:= code.Data;
+  //code
   GetMem(result, FCodePtr);
   System.Move(FCode^, result^, FCodePtr);
-  CodeSize:= FCodePtr;
-  Enter:= FEnterPoint;
+  code.CodeSize:= FCodePtr;
+  code.EnterPoint:= FEnterPoint;
+  code.CodePtr := result;
 end;
 
 end.

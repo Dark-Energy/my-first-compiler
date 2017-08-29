@@ -7,7 +7,7 @@ begin
   if f == 1 | f == 0 then return 1; end;
   r = 1;
   while f > 0 do 
-    r = r*f; DEC(f);
+    r = r*f; dec(f);
   end;
   return r;
 end; 
@@ -19,7 +19,7 @@ begin
   elsif m == 1 then return n;  end;
   r = 1;
   while m > 0 do 
-    r= r * n; DEC(n); DEC(m);
+    r= r * n; dec(n); dec(m);
   end;
   return r;
 end;
@@ -34,7 +34,7 @@ defun PrintFactorials(integer count);
 integer i;
 begin
   i=1;  
-  while i < count do  write(factorial(i)); INC(i); end;
+  while i < count do  write(factorial(i)); inc(i); end;
   writeln(count);
 end;
 
@@ -46,10 +46,10 @@ begin
     j=0;    
     while  j <= i do 
       write(razm(j, i)); 
-      INC(j);
+      inc(j);
     end;
     writeln(i);
-    INC(i);
+    inc(i);
   end;  
 end;
 
@@ -61,10 +61,10 @@ begin
     j=0;    
     while  j <= i do 
       write(comb(j, i)); 
-      INC(j);
+      inc(j);
     end;
     writeln(i);
-    INC(i);
+    inc(i);
   end;  
 end;
 
@@ -72,8 +72,8 @@ array 10 integer m;
 integer i;
 begin 
   i=0; 
-  while i<10 do    m[i]=i;  INC(i); end;
-  i=0; while i<10 do writeln(m[i]); INC(i); end;
+  while i<10 do    m[i]=i;  inc(i); end;
+  i=0; while i<10 do writeln(m[i]); inc(i); end;
   PrintFactorials(7);
   PrintRazm(5);
   PrintComb(5);

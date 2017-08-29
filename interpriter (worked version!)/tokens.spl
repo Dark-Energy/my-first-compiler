@@ -1,0 +1,11 @@
+  TokenValue:= c ?> {
+        '+': bufptr[0] <> '+' ? (Bufptr[1] <> '='? tAdd : tAddAsg) : tInc;
+        '-': bufptr[
+       }
+
+char c := (bufptr++)[0];
+TokVal := c ?> {
+        '+': bufptr[0] <> '+' ? (bufptr[1] <> '=' ? ADD : ADDASG) : INC;
+        '-': bufptr[0] <> '-' ? SUB : DEC;
+        '*': bufptr[0] <> '=' ? MUL : MULASG;
+        

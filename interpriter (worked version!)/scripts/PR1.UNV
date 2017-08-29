@@ -1,0 +1,13 @@
+//[5,7,8]; [2, 3, 4];
+//writeln(5*7*8);
+int h2:=2;
+int h1:= h2*8;
+int h0:= h1*7;
+int i:= 2, j:=3, k:= 4;
+int addr:= i*h0+ j*h1 + k*h2;
+writeln(addr);
+i:=2*7*8*h2+3*8*h2+4*h2;
+writeln(i);
+j:=2*7*8+3*8+4;
+j:=j*h2;
+writeln(j);

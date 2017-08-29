@@ -9,7 +9,7 @@ var
 begin
   m:= TMemoryStream.Create;
   try
-    m.LoadFromFile('tst.unv');
+    m.LoadFromFile('tst2.unv');
     m.Seek(0, soFromBeginning);
     SetString(s, pchar(m.Memory), m.Size);
   finally  
@@ -19,7 +19,8 @@ begin
     c:= TCompiler.Create;  
     try
       c.Compile(s);
-    except on E:Exception do MessageBox(0, pchar(E.Message), '', mb_ok); 
+    except on E:Exception do
+        MessageBox(0, pchar('it s here!' + E.Message), '', mb_ok);
     end;
   finally
     c.Free;

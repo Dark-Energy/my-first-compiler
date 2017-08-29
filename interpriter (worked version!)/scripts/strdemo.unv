@@ -1,0 +1,4 @@
+string s; 
+string t := "new  ";
+s := t +"  string"+"  t" + IntToStr(10);
+MesBox(s);

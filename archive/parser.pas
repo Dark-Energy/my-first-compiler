@@ -21,6 +21,7 @@ type
     function StatList:PNode;
     procedure Error(msg:string);
     procedure CheckToken(Token: TTokenValue);
+    procedure CheckToken_message(Token: TTokenValue; msg:string);
     procedure NextToken;
     function VarDef: PNode;
     function FormalList(var Count: integer):PNode;
@@ -67,13 +68,24 @@ end;
 
 procedure TParser.CheckToken(token: TTokenValue);
 begin
-  if FTokenValue = token then NextToken 
+  if FTokenValue = token then NextToken
   else begin
-     Error(Format('Требуется %s, но найдено %s', 
+    MessageBox(0, pchar(LexToStr(FTokenValue)), '', mb_ok);
+     Error(Format('Требуется %s, но найдено %s',
      [LexToStr(token), LexToStr(FTokenValue)]));
   end;
-  
 end;
+
+procedure TParser.CheckToken_message(token: TTokenValue; msg:string);
+begin
+  if FTokenValue = token then NextToken
+  else begin
+    MessageBox(0, pchar(msg), '', mb_ok);
+    Error(Format('Требуется %s, но найдено %s', [LexToStr(token), LexToStr(FTokenValue)]));
+  end;
+
+end;
+
 
 
 (* ============================ ВЫРАЖЕНИЯ =================================== *)
@@ -349,7 +361,9 @@ begin
       end
       ELSE  y:= nil;
       x:= FTree.NewBinNode(x, y, tvIfElse);
-      CheckToken(tvEnd);
+      //first
+      //CheckToken(tvEnd);
+      CheckToken_message(tvEnd, 'return from function');
     end //возврат из функции
     else if FTokenValue = tvReturn then begin   
       NextToken;  
@@ -366,7 +380,8 @@ begin
       CheckToken(tvDo);
       y:= StatList;
       x:= FTree.NewBinNode(x, y, tvWhile);
-      CheckToken(tvEnd);
+      //second
+      CheckToken_message(tvEnd, 'end of while');
     end
     else if FTokenValue = tvRepeat then begin   
       NextToken;
@@ -570,7 +585,8 @@ begin
   end;
   CheckToken(tvBegin);
   body:= StatList;
-  CheckToken(tvEnd);
+  //third
+  CheckToken_message(tvEnd, 'end of block, started with begin');
 
   FSymtab.CloseScope;  dec(FLevel);
   if formals <>nil then formals^.link:= vars
@@ -603,7 +619,8 @@ begin
         if FTokenValue <> tvSemicolon then break else NextToken;
         if FTokenValue = tvEnd then break;
       end;
-      CheckToken(tvEnd);
+      //fourth
+      CheckToken_message(tvEnd, 'end of record');
       tmp:= FTree.NewNode(tvRecord); tmp^.sym:= sym; 
       sym^.tip:= FSymtab.NewType(ntRecord); sym^.tip^.size:=0;
     end
@@ -628,7 +645,8 @@ begin
     else if FTokenValue = tvSemicolon then NextToken    
     else Error('Требуется ;');
   end;
-  CheckToken(tvEnd);
+  //file
+  CheckToken_message(tvEnd, 'end of file? end with dot');
   CheckToken(tvDot);
   result:= first;
 end;

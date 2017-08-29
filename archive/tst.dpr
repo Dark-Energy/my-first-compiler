@@ -23,29 +23,32 @@ begin
 end;
 
 
+type
+  TGeneratedCode = function : integer;
+
 var
-  c: TCompiler;
-  s: string;
+  comp: TCompiler;
+  source: string;
   p: tproc;
-  f: function: integer;
+  generated_code: TGeneratedCode;
   m: TMemoryStream;
   n: boolean;
 begin
   m:= TMemoryStream.Create;
     m.LoadFromFile('tst.unv');
     m.Seek(0, soFromBeginning);
-    SetString(s, pchar(m.Memory), m.Size);
-    c:= TCompiler.Create;
+    SetString(source, pchar(m.Memory), m.Size);
+    comp:= TCompiler.Create;
   n:= true;
 try
-  f:= c.Compile(s);
+  generated_code:= TGeneratedCode(comp.Compile(source));
 except
   on E:Exception do begin
     MessageBox(0, pchar(E.Message), '', mb_ok); n:= false;
-  end;  
+  end;
 end;
  try  
-     if n then f;
+     if n then generated_code;
   except 
     on E:Exception do writeln(E.Message+'; Run-Time Error');  end;
   //writeln(StVar1,',', StVar2, ',', StVar3, ',', StVar4);
